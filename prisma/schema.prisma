@@ -1,0 +1,59 @@
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  role          Role      @default(ADMIN) 
+  ratings       Rating[]
+  cart          Cart?
+}
+
+model Product {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  price         Float
+  imageUrl      String
+  ratings       Rating[]
+  CartItems     CartItem[]
+}
+
+model Cart {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products      CartItem[]
+}
+
+model CartItem {
+  id            String    @id @default(cuid())
+  cartId        String
+  cart          Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity      Int
+}
+
+model Rating {
+  id            String    @id @default(cuid())
+  value         Int
+  comment       String?
+  userId        String?   
+  user          User?     @relation(fields: [userId], references: [id]) // The relation back to the User model
+  productId     String
+  product       Product   @relation(fields: [productId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
