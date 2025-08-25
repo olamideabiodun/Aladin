@@ -59,7 +59,7 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Products Section (Dynamic and Functional) */}
+            {/* Products Section */}
             <div>
               <h2 className="text-2xl font-bold mb-6">Products For You!</h2>
               {products.length === 0 ? (

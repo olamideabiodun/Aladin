@@ -6,7 +6,12 @@ import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (!session || session.user.role !== "ADMIN") {
+  // Check for session and user, and check for admin role in a type-safe way
+  if (
+    !session?.user ||
+    !("role" in session.user) ||
+    (session.user as any).role !== "ADMIN"
+  ) {
     return new NextResponse("Unauthorized", { status: 403 });
   }
 

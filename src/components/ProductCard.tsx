@@ -41,8 +41,15 @@ export default function ProductCard({ product }: { product: any }) {
 
   return (
     <div className="border rounded-lg overflow-hidden shadow-lg p-4 bg-white flex flex-col items-center">
-      <div className="relative w-48 h-48">
-        <Image src={product.imageUrl} alt={product.name} layout="fill" objectFit="cover" />
+      {/* Updated image container with explicit dimensions */}
+      <div className="relative w-full aspect-square max-w-[200px] mx-auto">
+        <Image 
+          src={product.imageUrl} 
+          alt={product.name} 
+          width={200} // Explicitly set width
+          height={200} // Explicitly set height
+          className="rounded-md"
+        />
       </div>
       <h3 className="text-xl font-bold mt-4">{product.name}</h3>
       <p className="text-gray-700">${product.price.toFixed(2)}</p>

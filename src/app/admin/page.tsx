@@ -6,7 +6,11 @@ import ProductList from "@/components/ProductList";
 
 export default async function AdminPage() {
   const session = await auth();
-  if (!session || session.user.role !== "ADMIN") {
+
+  // Type guard for user with role uhhhhh
+  const user = session?.user as { role?: string } | undefined;
+
+  if (!session || user?.role !== "ADMIN") {
     redirect("/");
   }
 

@@ -25,6 +25,8 @@ model Product {
   imageUrl      String
   ratings       Rating[]
   CartItems     CartItem[]
+  categoryId    String?
+  category      Category? @relation(fields: [categoryId], references: [id])
 }
 
 model Cart {
@@ -51,6 +53,13 @@ model Rating {
   user          User?     @relation(fields: [userId], references: [id]) // The relation back to the User model
   productId     String
   product       Product   @relation(fields: [productId], references: [id])
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  icon      String?  
+  products  Product[]
 }
 
 enum Role {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { auth, signIn, signOut } from "@/lib/auth"; // Make sure to import `signOut`
+import { auth, signIn, signOut } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
@@ -13,7 +13,8 @@ export async function POST(req: Request) {
     const session = await auth();
 
     // Enforce admin-only access
-    if (!session || session.user.role !== "ADMIN") {
+    const userRole = (session?.user as any)?.role;
+    if (!userRole || userRole !== "ADMIN") {
       await signOut(); // Sign out the user immediately if they are not an admin
       return NextResponse.json({ error: "Unauthorized access" }, { status: 403 });
     }
