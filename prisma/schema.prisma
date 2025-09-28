@@ -1,68 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String
-  role          Role      @default(ADMIN) 
-  ratings       Rating[]
-  cart          Cart?
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      String    @default("USER") // "USER" or "SELLER"
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+  orders    Order[]
+  addresses Address[]
 }
 
 model Product {
-  id            String    @id @default(cuid())
-  name          String
-  description   String?
-  price         Float
-  imageUrl      String
-  ratings       Rating[]
-  CartItems     CartItem[]
-  categoryId    String?
-  category      Category? @relation(fields: [categoryId], references: [id])
-}
-
-model Cart {
-  id            String    @id @default(cuid())
-  userId        String    @unique
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  products      CartItem[]
-}
-
-model CartItem {
-  id            String    @id @default(cuid())
-  cartId        String
-  cart          Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  productId     String
-  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  quantity      Int
-}
-
-model Rating {
-  id            String    @id @default(cuid())
-  value         Int
-  comment       String?
-  userId        String?   
-  user          User?     @relation(fields: [userId], references: [id]) // The relation back to the User model
-  productId     String
-  product       Product   @relation(fields: [productId], references: [id])
+  id          String      @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  offerPrice  Float?      // For discounted prices
+  image       String[]    // Array of image URLs
+  category    Category?   @relation(fields: [categoryId], references: [id])
+  categoryId  String?
+  seller      User        @relation(fields: [sellerId], references: [id])
+  sellerId    String
+  stock       Int         @default(0) // Stock quantity
+  isActive    Boolean     @default(true) // Product availability
+  fabricType  String?     // e.g., "Silk", "Cotton", "Wool"
+  color       String?     // Fabric color
+  weight      String?     // Fabric weight (e.g., "Light", "Medium", "Heavy")
+  width       Float?      // Fabric width in inches/cm
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  orderItems  OrderItem[]
 }
 
 model Category {
   id        String    @id @default(cuid())
-  name      String
-  icon      String?  
+  name      String    @unique
   products  Product[]
 }
 
-enum Role {
-  USER
-  ADMIN
+model Address {
+  id          String   @id @default(cuid())
+  fullName    String
+  phoneNumber String
+  street      String
+  city        String
+  state       String
+  zip         String
+  country     String   @default("Sierra Leone")
+  isDefault   Boolean  @default(false)
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orders      Order[]
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  user       User        @relation(fields: [userId], references: [id])
+  userId     String
+  name       String
+  email      String
+  phone      String
+  address    Address?    @relation(fields: [addressId], references: [id])
+  addressId  String?
+  total      Float
+  status     String      @default("PENDING") // "PENDING", "COMPLETED", "CANCELLED", "SHIPPED", "DELIVERED"
+  paymentStatus String   @default("PENDING") // "PENDING", "PAID", "FAILED", "REFUNDED"
+  trackingNumber String?
+  notes      String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  orderItems OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
